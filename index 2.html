@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>God of Server · cyber base</title>
+    <!-- Font Awesome 5 (icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+        }
+
+        body {
+            background-color: #0a0c0f;
+            color: #b7ffb1;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* matrix rain canvas (background effect) */
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 5;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            backdrop-filter: blur(1px);
+        }
+
+        /* glitch / scan lines */
+        .wrapper::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,255,0,0.03) 0px, rgba(0,0,0,0.5) 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* header / identity */
+        .identity {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid #1f3b2c;
+            background: rgba(10, 20, 10, 0.7);
+            backdrop-filter: blur(6px);
+            padding: 2rem 1.5rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 0 25px #1a3b1a;
+            border-radius: 4px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .god-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px #00cc66, 0 0 18px #00aa55;
+            animation: flicker 3s infinite;
+            color: #b2ffb2;
+            line-height: 1.2;
+        }
+        .god-title span {
+            font-size: 2rem;
+            display: block;
+            letter-spacing: 4px;
+            color: #92f092;
+            text-shadow: 0 0 5px #00aa33;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 1; text-shadow: 0 0 8px #00cc66; }
+            25% { opacity: 0.95; text-shadow: 0 0 12px #33ff77, 0 0 25px #008844; }
+            30% { opacity: 1; }
+            50% { opacity: 0.98; text-shadow: 0 0 5px #11ff11; }
+            70% { opacity: 1; text-shadow: 0 0 15px #22dd22; }
+            100% { opacity: 1; }
+        }
+
+        .contact-row {
+            margin: 1rem 0 0.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            font-size: 1.4rem;
+            border-top: 1px dashed #2b5a2b;
+            padding-top: 1.2rem;
+            width: 100%;
+        }
+        .contact-row a {
+            color: #b4ffb4;
+            text-decoration: none;
+            border-bottom: 1px dotted #3a9b5a;
+            transition: 0.2s;
+        }
+        .contact-row a:hover {
+            color: white;
+            border-bottom: 1px solid #88ff88;
+            text-shadow: 0 0 8px #00ff80;
+        }
+        .contact-row i {
+            margin-right: 6px;
+            color: #28cc7a;
+        }
+
+        .email-block {
+            font-size: 1.2rem;
+            background: #101b10;
+            padding: 0.5rem 1.5rem;
+            border: 1px solid #216321;
+            border-radius: 40px;
+            display: inline-block;
+            margin-top: 0.4rem;
+            word-break: break-all;
+        }
+
+        .about-section {
+            background: rgba(0, 20, 0, 0.6);
+            border-left: 6px solid #2f9e44;
+            padding: 2rem 2rem;
+            margin: 2.5rem 0;
+            font-size: 2rem;
+            font-weight: 500;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 0 30px #1e4a1e;
+            border-radius: 0 12px 12px 0;
+            text-align: center;
+        }
+        .about-section p {
+            font-size: 1.9rem;
+            line-height: 1.4;
+            text-shadow: 0 0 5px currentColor;
+            letter-spacing: 1.5px;
+            color: #d0ffd0;
+        }
+        .about-section i {
+            color: #4ae;
+            margin: 0 8px;
+        }
+
+        /* card grid for links */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+            margin: 3.5rem 0 2rem;
+        }
+
+        .card {
+            background: #0c1a0c;
+            border: 1px solid #1d7a3b;
+            border-radius: 4px;
+            padding: 1.5rem 1.2rem;
+            transition: all 0.2s;
+            box-shadow: 0 0 15px #103d1a;
+            backdrop-filter: blur(2px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: #3ceb6b;
+            box-shadow: 0 0 28px #1bb84b;
+            background: #0f240f;
+        }
+        .card i {
+            font-size: 3rem;
+            color: #4ef27a;
+            margin-bottom: 0.8rem;
+        }
+        .card h3 {
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 0.4rem;
+            border-bottom: 1px solid #23662d;
+            padding-bottom: 0.5rem;
+        }
+        .card .link {
+            font-size: 1.1rem;
+            word-break: break-all;
+            background: #142114;
+            padding: 0.5rem;
+            margin-top: 1rem;
+            border-radius: 2px;
+            border: 1px solid #1e721e;
+            color: #b6f7b6;
+        }
+        .card a {
+            color: #aaffaa;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 0.7rem;
+            padding: 0.2rem 1rem;
+            border: 1px solid #2c9b4a;
+            border-radius: 20px;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        .card a:hover {
+            background: #1f4a1f;
+            border-color: #6aff8e;
+        }
+
+        /* download special */
+        .dl-card {
+            grid-column: span 2;
+            background: #0e1f0e;
+            border: 2px solid #349e5b;
+        }
+        .dl-card i {
+            color: #ffd966;
+        }
+        .dl-link {
+            font-size: 1.4rem;
+            background: #000c00;
+            padding: 0.8rem;
+        }
+
+        .footer-note {
+            margin-top: 4rem;
+            font-size: 1rem;
+            text-align: center;
+            color: #6a996a;
+            border-top: 1px solid #1d5a1d;
+            padding-top: 1.5rem;
+        }
+        .footer-note i {
+            color: #52b152;
+        }
+
+        /* custom unicode / asia style for about */
+        .unicode-styling {
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            font-weight: 500;
+        }
+        .flag {
+            filter: drop-shadow(0 0 6px #2e7d32);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrixCanvas"></canvas>
+
+    <div class="wrapper">
+        <!-- main header with name & email -->
+        <div class="identity">
+            <div class="god-title">
+                ⚡ GOD OF SERVER ⚡
+                <span>⌲  root#  cyber_priest  ⌲</span>
+            </div>
+            <div class="contact-row">
+                <a href="mailto:hakarnikiya@gmail.com"><i class="fas fa-envelope"></i> hakarnikiya</a>
+                <a href="https://www.youtube.com/@NIKIYA-MOD" target="_blank"><i class="fab fa-youtube"></i> NIKIYA-MOD</a>
+                <a href="https://t.me/nikiyamod" target="_blank"><i class="fab fa-telegram"></i> @nikiyamod</a>
+            </div>
+            <div class="email-block">
+                <i class="fas fa-skull"></i> direct contact: <strong>hakarnikiya@gmail.com</strong> <i class="fas fa-skull"></i>
+            </div>
+        </div>
+
+        <!-- about area with fancy text -->
+        <div class="about-section">
+            <p class="unicode-styling">
+                <i class="fas fa-bolt"></i> 𝐁͢ᴇꜱ͠ᴛ 𝐂ʏʙ͒͟͡ᴇʀ 𝐓ᴇᴇ̸͢ᴍ 𝐀̶ɴ͠ᴅ 𝐆͢ᴏ̷͠͞ᴅ 𝐍ɪ͢ᴋ͠ᴄʏ 𝐇ᴀ͠ᴋ͢͠ᴄ͠ɪɴ͠ɢ 𝐁ᴏ̷ᴛ ͢❗⚖️🇱🇰 <i class="fas fa-bolt"></i>
+            </p>
+            <p style="font-size:1.2rem; margin-top:1rem; color:#b6f7b6;">
+                <i class="fas fa-terminal"></i>  𝔊𝔬𝔡 𝔑𝔦𝔨𝔦𝔶𝔞  ·  𝔠𝔶𝔟𝔢𝔯 𝔡𝔢𝔪𝔬𝔫  ·  𝔰𝔢𝔯𝔳𝔢𝔯 𝔨𝔦𝔫𝔤
+            </p>
+        </div>
+
+        <!-- main link grid -->
+        <div class="grid">
+            <!-- youtube card -->
+            <div class="card">
+                <i class="fab fa-youtube-square"></i>
+                <h3>YOUTUBE</h3>
+                <div class="link">@NIKIYA-MOD</div>
+                <a href="https://www.youtube.com/@NIKIYA-MOD" target="_blank"><i class="fas fa-eye"></i> watch</a>
+            </div>
+            <!-- telegram card -->
+            <div class="card">
+                <i class="fab fa-telegram-plane"></i>
+                <h3>TELEGRAM</h3>
+                <div class="link">t.me/nikiyamod</div>
+                <a href="https://t.me/nikiyamod" target="_blank"><i class="fas fa-paper-plane"></i> join channel</a>
+            </div>
+            <!-- whatsapp tools card (special) -->
+            <div class="card dl-card">
+                <i class="fab fa-whatsapp"></i>
+                <h3>⚡ WHATSAPP HACKING TOOLS ⚡</h3>
+                <div class="link dl-link">
+                    <i class="fas fa-download"></i> HAKING_NIKIYA_TOOLS_1.0.apk
+                </div>
+                <a href="https://www.mediafire.com/file/9fqxlc8qo17ytfm/HAKING_NIKIYA_TOOLS_1.0.apk/file" target="_blank"><i class="fas fa-download"></i> direct download (mediafire)</a>
+                <p style="font-size:0.8rem; margin-top:10px; color:#b3ffaa;">⇾ md5: 9fqxlc8qo17ytfm</p>
+            </div>
+            <!-- mail / contact card -->
+            <div class="card">
+                <i class="fas fa-envelope-open-text"></i>
+                <h3>EMAIL</h3>
+                <div class="link">hakarnikiya@gmail.com</div>
+                <a href="mailto:hakarnikiya@gmail.com"><i class="fas fa-envelope"></i> send mail</a>
+            </div>
+        </div>
+
+        <!-- additional raw quote from the prompt -->
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 3rem 0 1rem; font-size: 1.2rem;">
+            <span style="background:#0f240f; padding:0.3rem 1rem; border:1px solid #2a9b4e;">⚔️ 𝐁͢ᴇꜱ͠ᴛ 𝐂ʏʙ͒͟͡ᴇʀ 𝐓ᴇᴇ̸͢ᴍ ⚔️</span>
+            <span style="background:#0f240f; padding:0.3rem 1rem; border:1px solid #2a9b4e;">🇱🇰 𝐆͢ᴏ̷͠͞ᴅ 𝐍ɪ͢ᴋ͠ᴄʏ 𝐇ᴀ͠ᴋ͢͠ᴄ͠ɪɴ͠ɢ 🇱🇰</span>
+            <span style="background:#0f240f; padding:0.3rem 1rem; border:1px solid #2a9b4e;">🤖 𝐁ᴏ̷ᴛ ͢❗⚖️</span>
+        </div>
+
+        <!-- footer with matrix quotes -->
+        <div class="footer-note">
+            <i class="fas fa-skull-crossbones"></i>  God of server · all access · root terminal  <i class="fas fa-skull-crossbones"></i><br>
+            <span style="color: #407340;"># include “cyber_priest.h”  —  exploit the matrix  —  S L root</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // matrix raining code effect (canvas background)
+            const canvas = document.getElementById('matrixCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let width, height;
+            let columns;
+            let drops = [];
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}[]:;<>,.?/~`¡™£¢∞§¶•ªº–≠";
+
+            function resizeCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                
+                columns = Math.floor(width / 22);  // column width
+                drops = [];
+                for (let i = 0; i < columns; i++) {
+                    drops[i] = Math.floor(Math.random() * -height); // start above canvas
+                }
+            }
+
+            function draw() {
+                // black background with a bit of opacity (fade effect)
+                ctx.fillStyle = 'rgba(10, 10, 10, 0.08)';
+                ctx.fillRect(0, 0, width, height);
+
+                // green tone
+                ctx.fillStyle = '#35cc6b';
+                ctx.font = '20px "Share Tech Mono", monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    // pick random character
+                    const char = chars[Math.floor(Math.random() * chars.length)];
+                    // x coordinate
+                    const x = i * 22;
+                    // y coordinate
+                    const y = drops[i] * 20;
+
+                    // draw character
+                    ctx.fillText(char, x, y);
+
+                    // reset if off canvas or random chance to reset early for variety
+                    if (y > height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    } else {
+                        drops[i] += 0.5 + Math.random() * 0.5; // speed
+                    }
+
+                    // occasional brightening
+                    if (Math.random() > 0.99) {
+                        ctx.fillStyle = '#b3ffb3';
+                        ctx.fillText(char, x, y);
+                        ctx.fillStyle = '#35cc6b';
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+            });
+
+            resizeCanvas();
+            draw();
+
+            // optional: add a little flicker to drops array reset after resize
+        })();
+    </script>
+
+    <!-- ensure ascii characters in about are displayed correctly -->
+    <style>
+        /* load monospace for special chars */
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        .unicode-styling, .about-section p, .god-title {
+            font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
+        }
+        /* fix flag emoji */
+        .footer-note i, .contact-row i, .card i {
+            filter: drop-shadow(0 0 3px #22dd88);
+        }
+        /* some additional glitch for fun */
+        .god-title:hover {
+            animation: none;
+            text-shadow: -2px 0 #00ff80, 2px 0 #006b36;
+        }
+    </style>
+</body>
+</html>
