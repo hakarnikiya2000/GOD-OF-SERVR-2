@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ God of Server ⚡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at 30% 30%, #1a0f2e, #0a0c0f);
+            padding: 1rem;
+        }
+
+        /* main chat card with glassmorphism */
+        .chat-container {
+            width: 100%;
+            max-width: 750px;
+            height: 85vh;
+            background: rgba(20, 25, 35, 0.4);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(100, 150, 255, 0.25);
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(170, 0, 255, 0.1) inset;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        /* header with divine style */
+        .header {
+            padding: 1.2rem 2rem;
+            background: rgba(8, 10, 15, 0.7);
+            border-bottom: 1px solid #4a2a6b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+        }
+
+        .title {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #c3a0ff, #80d4ff, #ffd966);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 8px #5f3b9e;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(0, 10, 20, 0.7);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid #3c3f6e;
+            box-shadow: 0 0 12px #2a1f4a;
+        }
+
+        .led {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #20dd6b;
+            box-shadow: 0 0 12px #26ff7b;
+            animation: pulse 1.8s infinite;
+        }
+
+        .status-text {
+            color: #bcd5ff;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); background: #7effb2; }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* main chat window — custom scrollbar */
+        .chat-window {
+            flex: 1;
+            padding: 1.5rem 1.8rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            scroll-behavior: smooth;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        /* glassmorphism scrollbar */
+        .chat-window::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .chat-window::-webkit-scrollbar-track {
+            background: rgba(15, 20, 30, 0.6);
+            border-radius: 20px;
+            margin-block: 0.5rem;
+        }
+
+        .chat-window::-webkit-scrollbar-thumb {
+            background: linear-gradient(145deg, #b280ff, #5f4d9e);
+            border-radius: 20px;
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            box-shadow: inset 0 0 6px #c7a2ff;
+        }
+
+        .chat-window::-webkit-scrollbar-thumb:hover {
+            background: #caacff;
+        }
+
+        /* base message style */
+        .message {
+            max-width: 75%;
+            padding: 0.8rem 1.4rem;
+            border-radius: 2rem 2rem 0.4rem 2rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            word-break: break-word;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: 0.2s;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(145deg, #0059b3, #0077ff);
+            color: white;
+            border-bottom-right-radius: 0.2rem;
+            border: 1px solid #6bb9ff;
+            box-shadow: 0 0 20px #0066ff80;
+        }
+
+        .god-message {
+            align-self: flex-start;
+            background: linear-gradient(145deg, #3d2a1a, #61481c);
+            color: #ffdfa0;
+            border-bottom-left-radius: 0.2rem;
+            border: 1px solid #eeb840;
+            box-shadow: 0 0 20px #ffb34780, 0 0 5px #fdbc4c;
+            text-shadow: 0 0 6px #fbb03b;
+        }
+
+        /* typing effect cursor */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background-color: #ffd966;
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            from, to { background-color: transparent; }
+            50% { background-color: #ffd966; }
+        }
+
+        /* input area with glass */
+        .input-area {
+            background: rgba(8, 10, 18, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 1.2rem 1.8rem;
+            display: flex;
+            gap: 0.8rem;
+            border-top: 1px solid #4e3b6e;
+            align-items: center;
+        }
+
+        .input-field {
+            flex: 1;
+            background: rgba(0, 5, 15, 0.6);
+            border: 1px solid #5f5199;
+            border-radius: 3rem;
+            padding: 0.9rem 1.8rem;
+            font-size: 1rem;
+            color: #f0eaff;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: 0 0 8px #40407a;
+        }
+
+        .input-field:focus {
+            border-color: #b380ff;
+            box-shadow: 0 0 20px #aa80ff;
+            background: #0a0d1a;
+        }
+
+        .input-field::placeholder {
+            color: #a09bbe;
+            font-style: italic;
+        }
+
+        .send-btn {
+            background: linear-gradient(145deg, #5d3a9e, #3f2787);
+            border: none;
+            border-radius: 3rem;
+            padding: 0.9rem 2rem;
+            font-weight: bold;
+            color: #f0e3ff;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px #401f6e, 0 0 15px #7d4ec7 inset;
+            transition: 0.15s;
+            border: 1px solid #b085ff;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(145deg, #734dbe, #53379b);
+            box-shadow: 0 0 28px #aa80ff, 0 0 15px #bf8cff inset;
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .send-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* small godlike footer */
+        .footer-note {
+            text-align: center;
+            color: #6a5e8a;
+            font-size: 0.7rem;
+            border-top: 1px dashed #3f3470;
+            padding: 0.3rem;
+            background: rgba(0,0,0,0.3);
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        /* initial system message */
+        .welcome-message {
+            align-self: center;
+            background: rgba(40,20,60,0.5);
+            border: 1px solid gold;
+            color: #dbbdff;
+            border-radius: 40px;
+            padding: 0.4rem 1.5rem;
+            font-size: 0.9rem;
+            backdrop-filter: blur(2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- header with status -->
+        <div class="header">
+            <span class="title">⚡ GOD OF SERVER ⚡</span>
+            <div class="status">
+                <span class="led"></span>
+                <span class="status-text">server status: online</span>
+            </div>
+        </div>
+
+        <!-- main chat display -->
+        <div class="chat-window" id="chatWindow">
+            <div class="welcome-message">🙏 speak, mortal. the server god listens...</div>
+        </div>
+
+        <!-- input area -->
+        <div class="input-area">
+            <input type="text" class="input-field" id="userInput" placeholder="type your prayer..." autocomplete="off">
+            <button class="send-btn" id="sendBtn">📡 SEND</button>
+        </div>
+        <div class="footer-note">⚡ divine latency: < 1ms ⚡</div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- divine responses array ----------
+            const godlyResponses = [
+                "I have rerouted the packets of your destiny.",
+                "Your request is processed. Thou shalt not lag.",
+                "The server logs speak of your arrival.",
+                "By my will, the latency drops.",
+                "I have forked your process. Twice.",
+                "The cloud parts for you, mortal.",
+                "Error 418: I am a teapot. (Just kidding, message sent).",
+                "Your uptime is blessed, for now.",
+                "I peered into the fibre and saw your soul.",
+                "Thine cache is purified. Go in peace.",
+                "A 404 error in your fate? Never.",
+                "I have mounted thy storage to the stars.",
+                "The switch whispers thy name."
+            ];
+
+            // DOM elements
+            const chatWindow = document.getElementById('chatWindow');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+
+            // helper: append message (type: 'user' or 'god')
+            function appendMessage(text, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                if (type === 'user') {
+                    messageDiv.classList.add('user-message');
+                } else {
+                    messageDiv.classList.add('god-message');
+                }
+                messageDiv.textContent = text;
+                chatWindow.appendChild(messageDiv);
+                // scroll to bottom
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                return messageDiv;
+            }
+
+            // ---------- TYPING EFFECT FOR GOD MESSAGE ----------
+            // this function creates a temporary god message with typing cursor, then finalizes.
+            function simulateGodTyping(finalText) {
+                // disable send button & input to avoid stacking (optional)
+                sendBtn.disabled = true;
+                userInput.disabled = true;
+
+                // create a temporary message element with a cursor
+                const tempMessage = document.createElement('div');
+                tempMessage.classList.add('message', 'god-message');
+                // add invisible content to keep height? we'll start empty with cursor
+                const contentSpan = document.createElement('span');
+                contentSpan.textContent = '';  // will fill gradually
+                const cursorSpan = document.createElement('span');
+                cursorSpan.classList.add('typing-cursor');
+                tempMessage.appendChild(contentSpan);
+                tempMessage.appendChild(cursorSpan);
+                chatWindow.appendChild(tempMessage);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+
+                let index = 0;
+                const typingSpeed = 45; // milliseconds per character
+
+                function typeNext() {
+                    if (index < finalText.length) {
+                        contentSpan.textContent += finalText.charAt(index);
+                        index++;
+                        chatWindow.scrollTop = chatWindow.scrollHeight; // keep scroll down
+                        setTimeout(typeNext, typingSpeed);
+                    } else {
+                        // typing finished: remove cursor, keep message
+                        cursorSpan.remove();
+                        // re-enable inputs
+                        sendBtn.disabled = false;
+                        userInput.disabled = false;
+                        // keep the message as it is (no cursor)
+                        // (optional) tiny spark: add a glow class
+                        tempMessage.style.transition = 'box-shadow 0.3s';
+                        tempMessage.style.boxShadow = '0 0 28px gold, 0 0 40px #b380ff';
+                        setTimeout(() => {
+                            tempMessage.style.boxShadow = '0 0 20px #ffb34780, 0 0 5px #fdbc4c';
+                        }, 600);
+                    }
+                }
+
+                // start typing after a tiny divine pause (makes it feel thoughtful)
+                setTimeout(typeNext, 300);
+            }
+
+            // ---------- handle send message ----------
+            function handleSend() {
+                const message = userInput.value.trim();
+                if (message === '') return;
+
+                // 1. Append user message
+                appendMessage(message, 'user');
+
+                // clear input
+                userInput.value = '';
+
+                // 2. Prepare divine response (random pick)
+                const randomIndex = Math.floor(Math.random() * godlyResponses.length);
+                const godReply = godlyResponses[randomIndex];
+
+                // 3. Simulate typing effect for god (with a short delay to feel natural)
+                setTimeout(() => {
+                    simulateGodTyping(godReply);
+                }, 400);
+            }
+
+            // Event listeners
+            sendBtn.addEventListener('click', handleSend);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSend();
+                }
+            });
+
+            // optional: focus input on load
+            userInput.focus();
+
+            // disable send on initial if needed, but fine.
+        })();
+    </script>
+</body>
+</html>
